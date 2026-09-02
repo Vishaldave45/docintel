@@ -137,7 +137,19 @@ export const DocumentDetailDrawer: React.FC<DocumentDetailDrawerProps> = ({
       {/* Main Drawer Scrollable Content */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* Status Stamp Alert */}
-        {isNeedsReview ? (
+        {document.extraction_status === "flagged" ? (
+          <div className="p-3.5 bg-[#B33A2E]/15 border-2 border-[#B33A2E] flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-[#B33A2E] shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-display font-semibold text-sm text-[#B33A2E]">
+                Document Flagged: Action Required
+              </h4>
+              <p className="text-xs text-[#211F1C]/90 mt-0.5 font-medium">
+                {document.flag_reason || "Extraction could not proceed due to low OCR quality or unreadable layout."}
+              </p>
+            </div>
+          </div>
+        ) : isNeedsReview ? (
           <div className="p-3.5 bg-[#B33A2E]/10 border border-[#B33A2E]/40 flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-[#B33A2E] shrink-0 mt-0.5" />
             <div>

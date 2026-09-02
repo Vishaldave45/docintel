@@ -79,7 +79,16 @@ class ExtractionService:
 
         final_state = self.runner.run_graph(initial_state)
 
-        status = "completed" if final_state["is_valid"] else ("needs_review" if final_state["repair_attempts"] >= max_repair_attempts else "failed")
+        flag_reason: str | None = None
+        if len(raw_ocr_text.strip()) < 20:
+            status = "flagged"
+            flag_reason = "Extracted text is too short or degraded for reliable analysis."
+        elif final_state["is_valid"]:
+            status = "completed"
+        elif final_state["repair_attempts"] >= max_repair_attempts:
+            status = "needs_review"
+        else:
+            status = "failed"
 
         return ExtractionResultDTO(
             document_id=document_id,
@@ -87,6 +96,7 @@ class ExtractionService:
             status=status,
             is_valid=final_state["is_valid"],
             fields=final_state["extracted_data"] or {},
+            flag_reason=flag_reason,
             validation_errors=final_state["validation_errors"],
             repair_attempts=final_state["repair_attempts"],
             confidence_scores=final_state["confidence_scores"],

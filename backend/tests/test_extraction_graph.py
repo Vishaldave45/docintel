@@ -50,3 +50,20 @@ async def test_extraction_graph_contract_flow() -> None:
     assert result.target_schema == "ContractExtraction"
     assert "governing_law" in result.fields
     assert len(result.fields.get("parties", [])) >= 2
+
+
+@pytest.mark.asyncio
+async def test_extraction_graph_flagged_on_empty_or_short_text() -> None:
+    service = ExtractionService()
+    short_text = "low ocr"
+
+    result = await service.extract_document_fields(
+        document_id="test-doc-flagged",
+        document_type="invoice",
+        raw_ocr_text=short_text,
+        layout_blocks=[],
+    )
+
+    assert result.status == "flagged"
+    assert result.flag_reason is not None
+    assert "short or degraded" in result.flag_reason

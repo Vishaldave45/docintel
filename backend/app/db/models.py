@@ -34,6 +34,7 @@ class DocumentORM(Base):
 
     # Extraction State
     extraction_status: Mapped[str] = mapped_column(String(50), default="pending")  # pending | completed | needs_review | flagged | failed
+    flag_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     extracted_fields: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
     validation_errors: Mapped[list[str]] = mapped_column(JSON, default=list)
     repair_attempts: Mapped[int] = mapped_column(Integer, default=0)

@@ -26,6 +26,7 @@ class DocumentDetailDTO(BaseModel):
     raw_ocr_text: str
     layout_blocks: list[dict[str, Any]]
     extraction_status: str
+    flag_reason: str | None = None
     extracted_fields: dict[str, Any]
     validation_errors: list[str]
     repair_attempts: int
@@ -72,6 +73,7 @@ async def upload_document(
         "raw_ocr_text": ingested.raw_ocr_text,
         "layout_blocks": blocks_dicts,
         "extraction_status": extraction.status,
+        "flag_reason": extraction.flag_reason,
         "extracted_fields": extraction.fields,
         "validation_errors": extraction.validation_errors,
         "repair_attempts": extraction.repair_attempts,

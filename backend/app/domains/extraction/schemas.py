@@ -68,9 +68,10 @@ class IDExtraction(BaseModel):
 class ExtractionResultDTO(BaseModel):
     document_id: str
     target_schema: str
-    status: Literal["completed", "needs_review", "failed"]
+    status: Literal["completed", "needs_review", "flagged", "failed"]
     is_valid: bool
     fields: dict[str, Any]
+    flag_reason: str | None = None
     validation_errors: list[str] = Field(default_factory=list)
     repair_attempts: int = 0
     confidence_scores: dict[str, float] = Field(default_factory=dict)

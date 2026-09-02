@@ -34,7 +34,8 @@ export interface DocumentItem {
   top_features: FeatureContribution[];
   raw_ocr_text: string;
   layout_blocks: LayoutBlock[];
-  extraction_status: "completed" | "needs_review" | "verified" | "repaired";
+  extraction_status: "completed" | "needs_review" | "flagged" | "verified" | "repaired";
+  flag_reason?: string;
   target_schema: string;
   extracted_fields: Record<string, any>;
   validation_errors: string[];

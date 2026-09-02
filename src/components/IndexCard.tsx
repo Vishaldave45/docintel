@@ -71,7 +71,11 @@ export const IndexCard: React.FC<IndexCardProps> = ({
 
         {/* Rubber Stamp Status Mark */}
         <div>
-          {isNeedsReview ? (
+          {document.extraction_status === "flagged" ? (
+            <span className="stamp-box stamp-review bg-[#B33A2E]/10 border-[#B33A2E] text-[#B33A2E]">
+              Flagged
+            </span>
+          ) : isNeedsReview ? (
             <span className="stamp-box stamp-review">
               Needs Review
             </span>
