@@ -46,6 +46,16 @@ async def test_process_text_pdf_extracts_content() -> None:
     writer = pypdf.PdfWriter()
     page = writer.add_blank_page(width=612, height=792)
 
+    # Add text annotation as a simple overlay (pypdf approach)
+    from pypdf.generic import DecodedStreamObject, NameObject
+
+    stream = DecodedStreamObject()
+    stream.set_data(
+        b"BT /F1 12 Tf 72 720 Td (INVOICE #TEST-001 Total: $999.00 Vendor: ACME) Tj ET"
+    )
+    stream_ref = writer._add_object(stream)
+    page[NameObject("/Contents")] = stream_ref
+
     buf = io.BytesIO()
     writer.write(buf)
     pdf_bytes = buf.getvalue()
@@ -59,17 +69,25 @@ async def test_process_text_pdf_extracts_content() -> None:
 
     assert dto.page_count == 1
     assert dto.filename == "test_invoice.pdf"
-    assert isinstance(dto.raw_ocr_text, str)
+    assert "INVOICE #TEST-001" in dto.raw_ocr_text
+    assert "ACME" in dto.raw_ocr_text
 
 
 @pytest.mark.asyncio
 async def test_process_multipage_pdf_returns_correct_page_count() -> None:
     """Real multi-page PDFs must return the correct page_count, not hardcoded 1."""
     pypdf = pytest.importorskip("pypdf")
+    from pypdf.generic import DecodedStreamObject, NameObject
 
     writer = pypdf.PdfWriter()
-    for _ in range(3):
-        writer.add_blank_page(width=612, height=792)
+    for i in range(3):
+        page = writer.add_blank_page(width=612, height=792)
+        stream = DecodedStreamObject()
+        stream.set_data(
+            f"BT /F1 12 Tf 72 720 Td (Annual Financial Report 2026 Section {i+1} Operating Revenue) Tj ET".encode()
+        )
+        stream_ref = writer._add_object(stream)
+        page[NameObject("/Contents")] = stream_ref
 
     buf = io.BytesIO()
     writer.write(buf)
@@ -83,6 +101,7 @@ async def test_process_multipage_pdf_returns_correct_page_count() -> None:
     )
 
     assert dto.page_count == 3
+    assert "Annual Financial Report" in dto.raw_ocr_text
 
 
 @pytest.mark.asyncio

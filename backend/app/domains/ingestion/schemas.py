@@ -14,7 +14,9 @@ class BoundingBox(BaseModel):
 
 class LayoutBlockDTO(BaseModel):
     id: str
-    block_type: Literal["header", "paragraph", "table", "key_value", "signature", "stamp", "barcode"]
+    block_type: Literal[
+        "header", "paragraph", "table", "key_value", "signature", "stamp", "barcode"
+    ]
     text: str
     confidence: float
     bbox: BoundingBox
