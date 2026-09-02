@@ -27,13 +27,15 @@ class DocumentRepository:
         """Retrieve a single document by its unique ID."""
         stmt = select(DocumentORM).where(DocumentORM.id == document_id)
         result = await self.session.execute(stmt)
-        return result.scalar_one_or_none()
+        doc: DocumentORM | None = result.scalar_one_or_none()
+        return doc
 
     async def list_all(self) -> Sequence[DocumentORM]:
         """Retrieve all documents ordered by creation time descending."""
         stmt = select(DocumentORM).order_by(DocumentORM.created_at.desc())
         result = await self.session.execute(stmt)
-        return result.scalars().all()
+        docs: Sequence[DocumentORM] = result.scalars().all()
+        return docs
 
     async def update_fields(
         self,

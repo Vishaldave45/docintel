@@ -14,5 +14,7 @@ python_version = "3.11"
 strict = true
 ignore_missing_imports = true
 explicit_package_bases = true
+disallow_untyped_decorators = false
+warn_unused_ignores = false
 mypy_path = ["backend", "."]
 

@@ -24,9 +24,10 @@ jobs:
           python-version: "3.11"
           cache: "pip"
 
-      - name: Install Python Linters
+      - name: Install Python Linters & Dependencies
         run: |
           pip install ruff black mypy
+          pip install -e backend/
 
       - name: Run Backend Linting
         run: |
