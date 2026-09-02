@@ -1,0 +1,1 @@
+"""DocIntel Ingestion Domain Package."""
