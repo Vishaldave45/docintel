@@ -9,9 +9,8 @@ class Settings(BaseSettings):
 
     app_name: str = "DocIntel Backend"
     environment: str = Field(default="development", alias="ENV")
-    debug: bool = False
+    debug: bool = Field(default=False, alias="DOCINTEL_DEBUG")
     port: int = 8000
-    host: str = "0.0.0.0"
 
     # Database
     database_url: str = Field(
