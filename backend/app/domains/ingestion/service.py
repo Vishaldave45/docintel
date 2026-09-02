@@ -11,7 +11,11 @@ class IngestionService:
     """Service handling document layout detection, bounding-box segmentation, and OCR."""
 
     SUPPORTED_TYPES: ClassVar[set[str]] = {
-        "application/pdf", "image/png", "image/jpeg", "image/tiff", "text/plain"
+        "application/pdf",
+        "image/png",
+        "image/jpeg",
+        "image/tiff",
+        "text/plain",
     }
 
     # Minimum meaningful OCR text length; below this we flag the document.
