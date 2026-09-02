@@ -48,7 +48,7 @@ async def test_process_text_pdf_extracts_content() -> None:
 
     # Add text annotation as a simple overlay (pypdf approach)
     # We embed text via a content stream on a blank page
-    from pypdf.generic import ContentStream, DecodedStreamObject
+    from pypdf.generic import DecodedStreamObject
 
     stream = DecodedStreamObject()
     stream.set_data(

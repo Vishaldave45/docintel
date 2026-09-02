@@ -132,15 +132,19 @@ class IngestionService:
             return (
                 full_text,
                 page_count,
-                f"Scan quality too low to extract readable text from '{filename}'. "
-                "Please re-upload a higher-resolution scan.",
+                (
+                    f"Scan quality too low to extract readable text from '{filename}'. "
+                    "Please re-upload a higher-resolution scan."
+                ),
             )
         except Exception as exc:
             return (
                 "",
                 1,
-                f"Could not process '{filename}': {exc}. "
-                "Ensure the file is a valid, non-corrupted PDF.",
+                (
+                    f"Could not process '{filename}': {exc}. "
+                    "Ensure the file is a valid, non-corrupted PDF."
+                ),
             )
 
     # ── Private image extractor ─────────────────────────────────────────────────
@@ -163,14 +167,18 @@ class IngestionService:
 
             return (
                 text,
-                f"Image '{filename}' produced insufficient text ({len(text)} characters). "
-                "Ensure the image is clear and contains readable text.",
+                (
+                    f"Image '{filename}' produced insufficient text ({len(text)} characters). "
+                    "Ensure the image is clear and contains readable text."
+                ),
             )
         except Exception as exc:
             return (
                 "",
-                f"Failed to read image '{filename}': {exc}. "
-                "Supported formats: PNG, JPG, TIFF.",
+                (
+                    f"Failed to read image '{filename}': {exc}. "
+                    "Supported formats: PNG, JPG, TIFF."
+                ),
             )
 
     # ── Layout segmenter ────────────────────────────────────────────────────────

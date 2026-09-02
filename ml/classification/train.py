@@ -7,7 +7,7 @@ Exports versioned model artifact (joblib) and metadata JSON with cross-validatio
 import hashlib
 import json
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -83,7 +83,7 @@ def train_and_export(output_dir: str = "ml/artifacts/classification/v1.2.0") -> 
     metadata = {
         "model_name": "docintel_classifier_tfidf_logreg",
         "version": "v1.2.0",
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
         "classes": classes,
         "cv_accuracy_mean": float(scores.mean()),
         "cv_accuracy_std": float(scores.std()),

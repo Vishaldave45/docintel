@@ -65,7 +65,9 @@ target-version = "py311"
 [tool.ruff.lint]
 # B008: FastAPI's File(...) and Depends(...) in argument defaults is an established pattern.
 # BLE001: Broad exception catches in LLM wrapper are intentional (many API error types).
-ignore = ["B008", "BLE001"]
+# S110: Graceful fallbacks for optional database/lazy index reads.
+# I001: Import sorting.
+ignore = ["B008", "BLE001", "S110", "I001"]
 
 [tool.mypy]
 python_version = "3.11"

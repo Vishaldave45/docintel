@@ -69,7 +69,7 @@ class ClassificationService:
 
         is_recognized = top_match.probability > 0.30
         predicted_type = top_match.document_type if is_recognized else "unrecognized"
-        confidence = top_match.probability if is_recognized else top_match.probability
+        confidence = top_match.probability
 
         return ClassificationResultDTO(
             predicted_type=predicted_type,
