@@ -83,6 +83,7 @@ class ExtractionService:
         final_state = self.runner.run_graph(initial_state)
 
         flag_reason: str | None = None
+        status: Literal["completed", "needs_review", "flagged", "failed"]
         if len(raw_ocr_text.strip()) < 20:
             status = "flagged"
             flag_reason = "Extracted text is too short or degraded for reliable analysis."

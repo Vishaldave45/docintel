@@ -3,6 +3,8 @@
 import logging
 import sys
 
+from typing import Any
+
 import structlog
 
 from app.core.config import settings
@@ -10,7 +12,7 @@ from app.core.config import settings
 
 def configure_logging() -> None:
     """Configure structured JSON logging."""
-    shared_processors = [
+    shared_processors: list[Any] = [
         structlog.contextvars.merge_contextvars,
         structlog.processors.add_log_level,
         structlog.processors.TimeStamper(fmt="iso"),
@@ -18,6 +20,7 @@ def configure_logging() -> None:
         structlog.processors.format_exc_info,
     ]
 
+    processors: list[Any]
     if settings.environment == "development":
         processors = shared_processors + [
             structlog.dev.ConsoleRenderer(colors=True)

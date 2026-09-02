@@ -99,7 +99,7 @@ async def upload_document(
         layout_blocks=blocks_dicts,
     )
 
-    doc_entry = {
+    doc_entry: dict[str, Any] = {
         "id": ingested.document_id,
         "filename": ingested.filename,
         "content_type": ingested.content_type,
