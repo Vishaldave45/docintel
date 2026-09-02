@@ -138,6 +138,14 @@ class IngestionService:
                 ),
             )
         except Exception as exc:
+            # If pypdf successfully read the structure/page count, return whatever text was found
+            if page_count > 0:
+                return (
+                    full_text if 'full_text' in locals() else "",
+                    page_count,
+                    None if ('full_text' in locals() and len(full_text) >= self._MIN_TEXT_LENGTH)
+                    else f"Scan quality too low or OCR unavailable for '{filename}'.",
+                )
             return (
                 "",
                 1,

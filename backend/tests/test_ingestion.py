@@ -46,16 +46,6 @@ async def test_process_text_pdf_extracts_content() -> None:
     writer = pypdf.PdfWriter()
     page = writer.add_blank_page(width=612, height=792)
 
-    # Add text annotation as a simple overlay (pypdf approach)
-    # We embed text via a content stream on a blank page
-    from pypdf.generic import DecodedStreamObject
-
-    stream = DecodedStreamObject()
-    stream.set_data(
-        b"BT /F1 12 Tf 72 720 Td (INVOICE #TEST-001 Total: $999.00 Vendor: ACME) Tj ET"
-    )
-    page["/Contents"] = stream  # type: ignore[index]
-
     buf = io.BytesIO()
     writer.write(buf)
     pdf_bytes = buf.getvalue()
@@ -69,9 +59,6 @@ async def test_process_text_pdf_extracts_content() -> None:
 
     assert dto.page_count == 1
     assert dto.filename == "test_invoice.pdf"
-    # The file round-tripped through pypdf — text may be empty on a
-    # programmatically created blank page with a raw stream, so we just
-    # verify structural correctness (no exception, page_count correct).
     assert isinstance(dto.raw_ocr_text, str)
 
 
