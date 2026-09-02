@@ -1,0 +1,6 @@
+{
+  "name": "DocIntel",
+  "description": "Multimodal document intelligence platform with layout OCR, classical ML classification, agentic extraction with LangGraph, and corpus-level RAG Q&A.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

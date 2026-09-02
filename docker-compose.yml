@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: docintel-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-docintel}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-docintel_secret_password}
+      POSTGRES_DB: ${POSTGRES_DB:-docintel_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U docintel -d docintel_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: docintel-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-docintel}:${POSTGRES_PASSWORD:-docintel_secret_password}@postgres:5432/${POSTGRES_DB:-docintel_db}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - MODEL_ARTIFACT_PATH=/app/ml/artifacts
+      - LOG_LEVEL=INFO
+      - PORT=8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app/backend
+      - ./ml:/app/ml
+      - docintel_storage:/app/storage
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: docintel-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:
+  docintel_storage:

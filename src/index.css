@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-paper: #F7F5F0;
+    --color-ink: #211F1C;
+    --color-ledger-blue: #2B3A55;
+    --color-stamp-red: #B33A2E;
+    --color-brass: #8A7B4F;
+  }
+
+  body {
+    background-color: #F7F5F0;
+    color: #211F1C;
+    font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: -0.01em;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Zilla Slab', Georgia, serif;
+    letter-spacing: -0.02em;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'IBM Plex Mono', monospace;
+  }
+}
+
+/* Custom Ledger Rule & Rubber Stamp Styling */
+.ledger-border {
+  border-color: rgba(138, 123, 79, 0.25);
+}
+
+.ledger-rule {
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 23px,
+    rgba(138, 123, 79, 0.15) 24px
+  );
+}
+
+.stamp-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-width: 1.5px;
+  transform: rotate(-1.5deg);
+  letter-spacing: 0.05em;
+}
+
+.stamp-verified {
+  color: #2B3A55;
+  border-color: #2B3A55;
+  background-color: rgba(43, 58, 85, 0.04);
+}
+
+.stamp-review {
+  color: #B33A2E;
+  border-color: #B33A2E;
+  background-color: rgba(179, 58, 46, 0.04);
+}
+
+.stamp-tab {
+  background-color: #2B3A55;
+  color: #F7F5F0;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
+  font-size: 11px;
+}
