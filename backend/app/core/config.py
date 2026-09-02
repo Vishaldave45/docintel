@@ -15,7 +15,7 @@ class Settings(BaseSettings):
 
     # Database
     database_url: str = Field(
-        default="postgresql+asyncpg://docintel:docintel_secret_password@localhost:5432/docintel_db",
+        default="postgresql+asyncpg://docintel:docintel_secret_password@localhost:5436/docintel_db",
         alias="DATABASE_URL",
     )
     db_pool_size: int = 10
