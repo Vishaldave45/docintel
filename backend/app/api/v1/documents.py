@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.auth import verify_api_key
 from app.db.repository import DocumentRepository
 from app.db.session import get_db
 from app.domains.classification.service import ClassificationService
@@ -74,6 +75,7 @@ async def upload_document(
     classification_service: ClassificationService = Depends(ClassificationService),
     extraction_service: ExtractionService = Depends(ExtractionService),
     repo: DocumentRepository | None = Depends(_get_repository),
+    _auth: str | None = Depends(verify_api_key),
 ) -> DocumentDetailDTO:
     """Full vertical slice: Ingest -> OCR & Layout -> Classify (ML) -> Extract (LangGraph) -> Store."""
     file_bytes = await file.read()
@@ -137,6 +139,7 @@ async def update_document_fields(
     document_id: str,
     request: FieldCorrectionRequest,
     repo: DocumentRepository | None = Depends(_get_repository),
+    _auth: str | None = Depends(verify_api_key),
 ) -> DocumentDetailDTO:
     """Apply manual field corrections with schema validation and mark document as verified."""
     if repo is not None:
@@ -165,6 +168,7 @@ async def re_extract_document(
     document_id: str,
     extraction_service: ExtractionService = Depends(ExtractionService),
     repo: DocumentRepository | None = Depends(_get_repository),
+    _auth: str | None = Depends(verify_api_key),
 ) -> DocumentDetailDTO:
     """Re-run the extraction state machine for a document."""
     doc_dict: dict[str, Any] | None = None

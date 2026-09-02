@@ -44,11 +44,32 @@ async def test_update_document_fields_correction_endpoint() -> None:
 
 
 @pytest.mark.asyncio
-async def test_update_document_fields_404_on_missing_doc() -> None:
+async def test_api_key_auth_enforcement(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Enable API key authentication
+    monkeypatch.setattr("app.core.auth.settings.api_key", "secret-test-api-key")
+
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
-        res = await client.patch(
-            "/api/v1/documents/non-existent-doc/fields",
-            json={"fields": {"total_amount": 500.0}},
+        # 1. Request without key -> 401 Unauthorized
+        res_no_key = await client.patch(
+            "/api/v1/documents/doc-test-patch/fields",
+            json={"fields": {"total_amount": 100.0}},
         )
-        assert res.status_code == 404
+        assert res_no_key.status_code == 401
+
+        # 2. Request with wrong key -> 401 Unauthorized
+        res_wrong_key = await client.patch(
+            "/api/v1/documents/doc-test-patch/fields",
+            headers={"X-API-Key": "wrong-key"},
+            json={"fields": {"total_amount": 100.0}},
+        )
+        assert res_wrong_key.status_code == 401
+
+        # 3. Request with valid key -> 200 OK
+        res_valid = await client.patch(
+            "/api/v1/documents/doc-test-patch/fields",
+            headers={"X-API-Key": "secret-test-api-key"},
+            json={"fields": {"total_amount": 14250.0}},
+        )
+        assert res_valid.status_code == 200
+

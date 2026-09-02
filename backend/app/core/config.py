@@ -29,6 +29,13 @@ class Settings(BaseSettings):
     faiss_index_path: str = "ml/artifacts/retrieval/corpus_faiss.index"
     embedding_model_name: str = "sentence-transformers/all-MiniLM-L6-v2"
 
+    # Security & CORS
+    allowed_origins: list[str] = Field(
+        default=["http://localhost:5173", "http://localhost:3000", "http://127.0.0.1:5173", "http://127.0.0.1:3000"],
+        alias="ALLOWED_ORIGINS",
+    )
+    api_key: str | None = Field(default=None, alias="DOCINTEL_API_KEY")
+
     # Observability
     log_level: str = "INFO"
 
