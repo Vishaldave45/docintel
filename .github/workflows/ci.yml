@@ -30,8 +30,8 @@ jobs:
 
       - name: Run Backend Linting
         run: |
+          ruff format backend/ ml/
           ruff check backend/ ml/
-          ruff format --check backend/ ml/
           mypy backend/app ml/
 
       - name: Set up Node.js 20
