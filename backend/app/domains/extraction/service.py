@@ -1,6 +1,6 @@
 """Extraction Domain Service."""
 
-from typing import Any
+from typing import Any, Literal
 
 from app.domains.extraction.graph import ExtractionGraphRunner, ExtractionGraphState
 from app.domains.extraction.llm import build_gemini_extraction_model, extract_with_gemini_schema
