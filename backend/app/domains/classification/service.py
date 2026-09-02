@@ -1,7 +1,8 @@
 """Classification Service using Scikit-Learn TF-IDF + Calibrated Classifier."""
 
 import re
-from typing import Any
+from typing import Any, ClassVar
+
 from app.domains.classification.schemas import (
     ClassificationResultDTO,
     ClassProbability,
@@ -15,7 +16,7 @@ class ClassificationService:
     VERSION = "v1.2.0-tfidf-logreg"
 
     # Known vocabulary weights for classical ML pipeline inference
-    CLASS_PROFILES = {
+    CLASS_PROFILES: ClassVar[dict[str, dict[str, Any]]] = {
         "invoice": {
             "keywords": ["invoice", "bill to", "due date", "subtotal", "total amount", "tax", "remit", "po#", "balance due"],
             "weight": 1.4,
@@ -46,7 +47,7 @@ class ClassificationService:
 
         for doc_type, profile in self.CLASS_PROFILES.items():
             matched_count = 0
-            score = 0.05 # prior
+            score = 0.05  # prior
             for kw in profile["keywords"]:
                 count = len(re.findall(r"\b" + re.escape(kw) + r"\b", text_lower))
                 if count > 0:

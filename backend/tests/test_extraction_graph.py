@@ -1,8 +1,9 @@
 """Unit Tests for LangGraph State Machine and Self-Correction Repair Loop."""
 
 import pytest
-from app.domains.extraction.service import ExtractionService
+
 from app.domains.extraction.llm import build_gemini_extraction_model
+from app.domains.extraction.service import ExtractionService
 
 
 def test_build_gemini_extraction_model_uses_google_provider(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -19,7 +20,7 @@ def test_build_gemini_extraction_model_uses_google_provider(monkeypatch: pytest.
 async def test_extraction_graph_invoice_flow() -> None:
     service = ExtractionService()
     invoice_text = "INVOICE #4471\nTotal Amount: $14,250.00\nPayment Terms: Net 30"
-    
+
     result = await service.extract_document_fields(
         document_id="test-doc-1",
         document_type="invoice",
@@ -38,7 +39,7 @@ async def test_extraction_graph_invoice_flow() -> None:
 async def test_extraction_graph_contract_flow() -> None:
     service = ExtractionService()
     contract_text = "MASTER SERVICES AGREEMENT. Governing Law: State of Delaware."
-    
+
     result = await service.extract_document_fields(
         document_id="test-doc-2",
         document_type="contract",

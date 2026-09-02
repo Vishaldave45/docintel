@@ -2,6 +2,7 @@
 
 import time
 from typing import Any
+
 from app.domains.retrieval.schemas import RAGQueryResultDTO, SourceCitation
 
 

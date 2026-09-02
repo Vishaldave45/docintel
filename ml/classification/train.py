@@ -4,17 +4,17 @@ Trains a TF-IDF Vectorizer + Calibrated Logistic Regression model on labeled doc
 Exports versioned model artifact (joblib) and metadata JSON with cross-validation metrics.
 """
 
+import hashlib
 import json
 import os
-import hashlib
 from datetime import datetime, timezone
-import numpy as np
+
+import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import Pipeline
-from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.metrics import classification_report
-import joblib
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.pipeline import Pipeline
 
 DATASET = [
     # Invoices
@@ -53,7 +53,7 @@ def train_and_export(output_dir: str = "ml/artifacts/classification/v1.2.0") -> 
 
     texts = [item["text"] for item in DATASET]
     labels = [item["label"] for item in DATASET]
-    classes = sorted(list(set(labels)))
+    classes = sorted(set(labels))
 
     print(f"Training on {len(texts)} samples across {len(classes)} classes: {classes}")
 

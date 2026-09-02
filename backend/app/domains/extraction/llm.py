@@ -48,5 +48,7 @@ def extract_with_gemini_schema(
     try:
         structured_model = model.with_structured_output(schema)
         return structured_model.invoke(prompt)
-    except Exception:
+    except Exception as exc:  # Gemini API can raise many different error types
+        # Log the error but return None to allow fallback to heuristic extraction
+        _ = exc
         return None

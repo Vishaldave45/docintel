@@ -1,7 +1,8 @@
 """Type-Specific Extraction Pydantic Schemas and Validation Contracts."""
 
-from pydantic import BaseModel, Field
 from typing import Any, Literal
+
+from pydantic import BaseModel, Field
 
 
 class InvoiceLineItem(BaseModel):
@@ -27,7 +28,7 @@ class InvoiceExtraction(BaseModel):
 
 class ContractParty(BaseModel):
     name: str
-    role: str # e.g. "Disclosing Party", "Client", "Vendor"
+    role: str  # e.g. "Disclosing Party", "Client", "Vendor"
 
 
 class ContractExtraction(BaseModel):
@@ -44,7 +45,7 @@ class ContractExtraction(BaseModel):
 
 class FinancialReportExtraction(BaseModel):
     company_name: str
-    fiscal_period: str # e.g. "Q3 2025" or "FY2025"
+    fiscal_period: str  # e.g. "Q3 2025" or "FY2025"
     reporting_currency: str = "USD"
     revenue: float
     net_income: float

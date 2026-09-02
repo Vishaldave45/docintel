@@ -1,8 +1,7 @@
 """LangGraph State Machine for Type-Conditioned Agentic Extraction."""
 
-from typing import TypedDict, Any
-import json
 import re
+from typing import Any, TypedDict
 
 
 class ExtractionGraphState(TypedDict):
@@ -57,14 +56,14 @@ class ExtractionGraphRunner:
             inv_match = re.search(r"(?:invoice\s*#?|inv-?)[:\s]*([A-Z0-9-]+)", text, re.IGNORECASE)
             invoice_number = inv_match.group(1) if inv_match else "4471"
             extracted["invoice_number"] = f"INV-{invoice_number}" if not invoice_number.upper().startswith("INV-") else invoice_number
-            
+
             # Vendor & customer
             extracted["vendor_name"] = "Acme Global Supplies Corp."
             extracted["customer_name"] = "Kestrel Analytics Inc."
             extracted["invoice_date"] = "2026-08-29"
             extracted["due_date"] = "2026-09-28"
             extracted["currency"] = "USD"
-            
+
             # Totals
             total_match = re.search(r"(?:total|amount due)[:\s]*\$?\s*([\d,]+\.?\d*)", text, re.IGNORECASE)
             total_val = float(total_match.group(1).replace(",", "")) if total_match else 14250.00
@@ -174,7 +173,7 @@ class ExtractionGraphRunner:
         """Self-correction node fixing failed validations."""
         state["repair_attempts"] += 1
         data = state["extracted_data"] or {}
-        
+
         # Self-repair logic
         if "Subtotal" in " ".join(state["validation_errors"]):
             # Recalibrate total

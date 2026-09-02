@@ -1,8 +1,9 @@
 """FastAPI Router for Corpus RAG Q&A with Citations."""
 
 from fastapi import APIRouter, Depends
-from app.domains.retrieval.service import RetrievalService
+
 from app.domains.retrieval.schemas import RAGQueryRequest, RAGQueryResultDTO
+from app.domains.retrieval.service import RetrievalService
 
 router = APIRouter(prefix="/rag", tags=["Retrieval & RAG"])
 

@@ -1,14 +1,18 @@
 """Ingestion Service implementing layout segmentation and OCR."""
 
 import uuid
-from app.core.exceptions import IngestionError, UnsupportedFileTypeError
-from app.domains.ingestion.schemas import IngestedDocumentDTO, LayoutBlockDTO, BoundingBox
+from typing import ClassVar
+
+from app.core.exceptions import UnsupportedFileTypeError
+from app.domains.ingestion.schemas import BoundingBox, IngestedDocumentDTO, LayoutBlockDTO
 
 
 class IngestionService:
     """Service handling document layout detection, bounding-box segmentation, and OCR."""
 
-    SUPPORTED_TYPES = {"application/pdf", "image/png", "image/jpeg", "image/tiff", "text/plain"}
+    SUPPORTED_TYPES: ClassVar[set[str]] = {
+        "application/pdf", "image/png", "image/jpeg", "image/tiff", "text/plain"
+    }
 
     async def process_file(
         self,
@@ -23,7 +27,7 @@ class IngestionService:
             )
 
         doc_id = str(uuid.uuid4())
-        
+
         # If plain text / sample text payload
         if content_type == "text/plain" or filename.endswith(".txt"):
             text = file_bytes.decode("utf-8", errors="replace")
@@ -56,7 +60,7 @@ class IngestionService:
         """Heuristic rule-based layout analyzer identifying headers, tables, key-values, and paragraphs."""
         lines = [line.strip() for line in text.split("\n") if line.strip()]
         blocks: list[LayoutBlockDTO] = []
-        
+
         y_cursor = 40.0
         for idx, line in enumerate(lines):
             block_type = "paragraph"
@@ -70,7 +74,7 @@ class IngestionService:
             blocks.append(
                 LayoutBlockDTO(
                     id=f"blk_{idx+1:03d}",
-                    block_type=block_type, # type: ignore
+                    block_type=block_type,  # type: ignore[arg-type]
                     text=line,
                     confidence=0.97 if block_type == "header" else 0.94,
                     bbox=BoundingBox(

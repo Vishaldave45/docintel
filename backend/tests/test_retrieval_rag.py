@@ -1,6 +1,7 @@
 """Unit Tests for FAISS Dense Vector RAG & Citation Provenance."""
 
 import pytest
+
 from app.domains.retrieval.service import RetrievalService
 
 

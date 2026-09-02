@@ -1,6 +1,7 @@
 """API v1 Router aggregation."""
 
 from fastapi import APIRouter
+
 from app.api.v1.documents import router as documents_router
 from app.api.v1.rag import router as rag_router
 from app.api.v1.system import router as system_router

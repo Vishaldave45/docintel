@@ -1,14 +1,13 @@
 """FastAPI Router for Document Ingestion, Classification, and Extraction."""
 
-from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, status
-from pydantic import BaseModel
 from typing import Any
-from app.domains.ingestion.service import IngestionService
-from app.domains.ingestion.schemas import IngestedDocumentDTO
+
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from pydantic import BaseModel
+
 from app.domains.classification.service import ClassificationService
-from app.domains.classification.schemas import ClassificationResultDTO
 from app.domains.extraction.service import ExtractionService
-from app.domains.extraction.schemas import ExtractionResultDTO
+from app.domains.ingestion.service import IngestionService
 
 router = APIRouter(prefix="/documents", tags=["Documents"])
 
@@ -42,7 +41,7 @@ async def upload_document(
 ) -> DocumentDetailDTO:
     """Full vertical slice: Ingest -> OCR & Layout -> Classify (ML) -> Extract (LangGraph) -> Store."""
     file_bytes = await file.read()
-    
+
     # 1. Layout & OCR
     ingested = await ingestion_service.process_file(
         filename=file.filename or "uploaded_document",
