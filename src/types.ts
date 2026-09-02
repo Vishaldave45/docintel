@@ -28,9 +28,10 @@ export interface DocumentItem {
   content_type: string;
   file_size_bytes: number;
   page_count: number;
-  document_type: "invoice" | "contract" | "financial_report" | "identification" | "receipt" | "general";
+  document_type: "invoice" | "contract" | "financial_report" | "identification" | "receipt" | "general" | "unrecognized";
   classifier_confidence: number;
   classification_model_version: string;
+  classification_probabilities?: Array<{ document_type: string; probability: number }>;
   top_features: FeatureContribution[];
   raw_ocr_text: string;
   layout_blocks: LayoutBlock[];

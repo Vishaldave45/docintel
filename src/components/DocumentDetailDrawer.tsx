@@ -34,6 +34,7 @@ export const DocumentDetailDrawer: React.FC<DocumentDetailDrawerProps> = ({
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValue, setEditValue] = useState<string>("");
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [manualDocType, setManualDocType] = useState<string>("invoice");
 
   if (!document) return null;
 
@@ -381,6 +382,42 @@ export const DocumentDetailDrawer: React.FC<DocumentDetailDrawerProps> = ({
                 Scikit-Learn TF-IDF vectorizer + multiclass logistic regression with n-gram feature attribution.
               </p>
             </div>
+
+            {document.document_type === "unrecognized" && (
+              <div className="p-4 bg-[#B33A2E]/10 border-2 border-[#B33A2E] space-y-3">
+                <div className="flex items-center gap-2 text-[#B33A2E] font-display font-semibold text-sm">
+                  <AlertTriangle className="w-4 h-4" />
+                  <span>Unrecognized Document Type — Manual Classification Required</span>
+                </div>
+                <p className="text-xs text-[#211F1C]/80">
+                  The classifier confidence was below the 30% recognition threshold. Choose the correct document type below to execute type-specific extraction.
+                </p>
+                <div className="flex items-center gap-3 pt-1">
+                  <select
+                    className="text-xs font-sans px-3 py-1.5 border border-[#2B3A55] bg-white text-[#211F1C] focus:outline-none"
+                    value={manualDocType}
+                    onChange={(e) => setManualDocType(e.target.value)}
+                  >
+                    <option value="invoice">Invoice</option>
+                    <option value="contract">Contract</option>
+                    <option value="financial_report">Financial Report</option>
+                    <option value="identification">Identification</option>
+                    <option value="receipt">Receipt</option>
+                  </select>
+                  <button
+                    onClick={async () => {
+                      if (onUpdateDocument) {
+                        onUpdateDocument({ ...document, document_type: manualDocType as any });
+                      }
+                      onReExtract(document.id);
+                    }}
+                    className="px-3 py-1.5 bg-[#2B3A55] text-[#F7F5F0] text-xs font-semibold hover:bg-[#2B3A55]/90 transition-colors"
+                  >
+                    Set Type & Extract
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 border border-[#8A7B4F]/30 bg-[#FAF8F5]">

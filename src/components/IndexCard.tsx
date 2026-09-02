@@ -14,6 +14,7 @@ const TYPE_NOTCHES: Record<string, { tag: string; label: string; bg: string }> =
   financial_report: { tag: "REP", label: "Financial Report", bg: "bg-[#8A7B4F] text-[#F7F5F0]" },
   identification: { tag: "ID", label: "Identification", bg: "bg-[#211F1C] text-[#F7F5F0]" },
   receipt: { tag: "REC", label: "Receipt", bg: "bg-[#8A7B4F] text-[#F7F5F0]" },
+  unrecognized: { tag: "???", label: "Unrecognized", bg: "bg-[#B33A2E] text-[#F7F5F0]" },
   general: { tag: "DOC", label: "Document", bg: "bg-[#2B3A55] text-[#F7F5F0]" },
 };
 

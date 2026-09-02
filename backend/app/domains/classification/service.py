@@ -67,11 +67,21 @@ class ClassificationService:
         # Sort top features by weight
         features_found.sort(key=lambda f: f.weight, reverse=True)
 
+        is_recognized = top_match.probability > 0.30
+        predicted_type = top_match.document_type if is_recognized else "unrecognized"
+        confidence = top_match.probability if is_recognized else top_match.probability
+
         return ClassificationResultDTO(
-            predicted_type=top_match.document_type if top_match.probability > 0.3 else "report",
-            confidence=top_match.probability if top_match.probability > 0.3 else 0.52,
+            predicted_type=predicted_type,
+            confidence=confidence,
             model_version=self.VERSION,
+            is_recognized=is_recognized,
             probabilities=probabilities,
             top_features=features_found[:6],
-            decision_reasoning=f"High token density for class '{top_match.document_type}' with key indicators: {', '.join([f.feature_ngram for f in features_found[:3]]) or 'context layout'}",
+            decision_reasoning=(
+                f"High token density for class '{top_match.document_type}' with key indicators: "
+                f"{', '.join([f.feature_ngram for f in features_found[:3]]) or 'context layout'}"
+                if is_recognized
+                else "Document vocabulary and token density did not match any known template with high confidence."
+            ),
         )

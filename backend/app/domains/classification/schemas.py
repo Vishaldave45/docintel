@@ -17,6 +17,7 @@ class ClassificationResultDTO(BaseModel):
     predicted_type: str
     confidence: float
     model_version: str
+    is_recognized: bool = True
     probabilities: list[ClassProbability]
     top_features: list[FeatureContribution]
     decision_reasoning: str

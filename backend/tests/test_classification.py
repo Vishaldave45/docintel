@@ -25,3 +25,14 @@ async def test_classify_contract_tokens() -> None:
     result = await service.classify_text(contract_text)
     assert result.predicted_type == "contract"
     assert result.confidence >= 0.70
+
+
+@pytest.mark.asyncio
+async def test_classify_unrecognized_below_confidence_threshold() -> None:
+    service = ClassificationService()
+    ambiguous_text = "The quick brown fox jumps over the lazy dog in the sunny park with no financial or legal terms."
+
+    result = await service.classify_text(ambiguous_text)
+    assert result.predicted_type == "unrecognized"
+    assert result.is_recognized is False
+    assert len(result.probabilities) == 5
