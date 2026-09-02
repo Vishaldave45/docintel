@@ -2,6 +2,17 @@
 
 import pytest
 from app.domains.extraction.service import ExtractionService
+from app.domains.extraction.llm import build_gemini_extraction_model
+
+
+def test_build_gemini_extraction_model_uses_google_provider(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("app.domains.extraction.llm.settings.gemini_api_key", "test-key")
+
+    model = build_gemini_extraction_model()
+
+    assert model is not None
+    assert getattr(model, "model", None) == "gemini-1.5-flash"
+    assert str(getattr(model, "google_api_key", None)) == "**********"
 
 
 @pytest.mark.asyncio

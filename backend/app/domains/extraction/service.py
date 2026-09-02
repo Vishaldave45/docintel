@@ -1,8 +1,10 @@
 """Extraction Domain Service."""
 
 from typing import Any
-from app.domains.extraction.schemas import ExtractionResultDTO
+
 from app.domains.extraction.graph import ExtractionGraphRunner, ExtractionGraphState
+from app.domains.extraction.llm import build_gemini_extraction_model, extract_with_gemini_schema
+from app.domains.extraction.schemas import ExtractionResultDTO
 
 
 class ExtractionService:
@@ -10,6 +12,46 @@ class ExtractionService:
 
     def __init__(self) -> None:
         self.runner = ExtractionGraphRunner()
+        self.llm = build_gemini_extraction_model()
+
+    async def extract_document_fields_with_llm(
+        self,
+        document_id: str,
+        document_type: str,
+        raw_ocr_text: str,
+        layout_blocks: list[dict[str, Any]],
+        schema: type[Any] | None = None,
+    ) -> dict[str, Any] | None:
+        """Try a Gemini structured-output extraction when the provider is configured."""
+        if self.llm is None:
+            return None
+
+        target_schema = schema or self._resolve_schema_for_document_type(document_type)
+        prompt = (
+            f"Extract structured data for document_type='{document_type}'. "
+            f"Return the fields in a validated JSON shape matching the schema.\n\n"
+            f"OCR_TEXT:\n{raw_ocr_text}\n\n"
+            f"LAYOUT_BLOCKS:\n{layout_blocks}"
+        )
+        return extract_with_gemini_schema(target_schema, prompt, model=self.llm)
+
+    def _resolve_schema_for_document_type(self, document_type: str) -> type[Any]:
+        """Map document type to the corresponding Pydantic schema."""
+        doc_type = document_type.lower()
+        if "invoice" in doc_type or "bill" in doc_type:
+            from app.domains.extraction.schemas import InvoiceExtraction
+            return InvoiceExtraction
+        if "contract" in doc_type or "agreement" in doc_type or "nda" in doc_type:
+            from app.domains.extraction.schemas import ContractExtraction
+            return ContractExtraction
+        if "report" in doc_type or "financial" in doc_type or "earnings" in doc_type:
+            from app.domains.extraction.schemas import FinancialReportExtraction
+            return FinancialReportExtraction
+        if "id" in doc_type or "passport" in doc_type or "license" in doc_type:
+            from app.domains.extraction.schemas import IDExtraction
+            return IDExtraction
+        from app.domains.extraction.schemas import InvoiceExtraction
+        return InvoiceExtraction
 
     async def extract_document_fields(
         self,

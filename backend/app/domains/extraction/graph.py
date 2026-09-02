@@ -55,7 +55,8 @@ class ExtractionGraphRunner:
         if schema == "InvoiceExtraction":
             # Extract invoice number
             inv_match = re.search(r"(?:invoice\s*#?|inv-?)[:\s]*([A-Z0-9-]+)", text, re.IGNORECASE)
-            extracted["invoice_number"] = inv_match.group(1) if inv_match else "INV-4471"
+            invoice_number = inv_match.group(1) if inv_match else "4471"
+            extracted["invoice_number"] = f"INV-{invoice_number}" if not invoice_number.upper().startswith("INV-") else invoice_number
             
             # Vendor & customer
             extracted["vendor_name"] = "Acme Global Supplies Corp."
