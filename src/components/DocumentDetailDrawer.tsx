@@ -11,6 +11,8 @@ import {
   Code2,
   FileCheck,
   Hash,
+  Edit2,
+  Check,
 } from "lucide-react";
 
 interface DocumentDetailDrawerProps {
@@ -18,6 +20,7 @@ interface DocumentDetailDrawerProps {
   onClose: () => void;
   onReExtract: (id: string) => void;
   isReExtracting: boolean;
+  onUpdateDocument?: (updated: DocumentItem) => void;
 }
 
 export const DocumentDetailDrawer: React.FC<DocumentDetailDrawerProps> = ({
@@ -25,10 +28,60 @@ export const DocumentDetailDrawer: React.FC<DocumentDetailDrawerProps> = ({
   onClose,
   onReExtract,
   isReExtracting,
+  onUpdateDocument,
 }) => {
   const [activeTab, setActiveTab] = useState<"fields" | "layout" | "classifier" | "trace" | "json">("fields");
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState<string>("");
+  const [isSaving, setIsSaving] = useState<boolean>(false);
 
   if (!document) return null;
+
+  const handleSaveField = async (key: string) => {
+    if (!document) return;
+    setIsSaving(true);
+    let parsedVal: any = editValue;
+    if (!isNaN(Number(editValue)) && editValue.trim() !== "") {
+      parsedVal = Number(editValue);
+    }
+
+    const previousDoc = { ...document };
+    const optimisticDoc: DocumentItem = {
+      ...document,
+      extraction_status: "verified",
+      extracted_fields: {
+        ...document.extracted_fields,
+        [key]: parsedVal,
+      },
+    };
+
+    if (onUpdateDocument) {
+      onUpdateDocument(optimisticDoc);
+    }
+
+    try {
+      const res = await fetch(`/api/v1/documents/${document.id}/fields`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fields: { [key]: parsedVal } }),
+      });
+
+      if (res.ok) {
+        const saved = await res.json();
+        if (onUpdateDocument) onUpdateDocument(saved);
+        setEditingField(null);
+      } else {
+        if (onUpdateDocument) onUpdateDocument(previousDoc);
+        alert("Failed to save field correction.");
+      }
+    } catch (err) {
+      console.error("Field update failed:", err);
+      if (onUpdateDocument) onUpdateDocument(previousDoc);
+      alert("Network error saving field correction.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const isNeedsReview = document.extraction_status === "needs_review";
 
@@ -196,6 +249,7 @@ export const DocumentDetailDrawer: React.FC<DocumentDetailDrawerProps> = ({
               {Object.entries(document.extracted_fields || {}).map(([key, value]) => {
                 const conf = document.confidence_scores?.[key] || 0.95;
                 const isComplex = typeof value === "object" && value !== null;
+                const isEditing = editingField === key;
 
                 return (
                   <div key={key} className="p-3.5 flex flex-col sm:flex-row sm:items-start justify-between gap-2">
@@ -208,15 +262,58 @@ export const DocumentDetailDrawer: React.FC<DocumentDetailDrawerProps> = ({
                       </div>
                     </div>
 
-                    <div className="sm:w-2/3">
-                      {isComplex ? (
-                        <pre className="text-xs font-mono bg-[#F7F5F0] p-2 border border-[#8A7B4F]/20 overflow-x-auto text-[#211F1C]">
-                          {JSON.stringify(value, null, 2)}
-                        </pre>
-                      ) : (
-                        <span className="text-xs font-sans text-[#211F1C] font-medium break-words">
-                          {String(value)}
-                        </span>
+                    <div className="sm:w-2/3 flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        {isComplex ? (
+                          <pre className="text-xs font-mono bg-[#F7F5F0] p-2 border border-[#8A7B4F]/20 overflow-x-auto text-[#211F1C]">
+                            {JSON.stringify(value, null, 2)}
+                          </pre>
+                        ) : isEditing ? (
+                          <div className="flex items-center gap-1.5">
+                            <input
+                              type="text"
+                              value={editValue}
+                              onChange={(e) => setEditValue(e.target.value)}
+                              className="w-full text-xs font-sans px-2 py-1 border border-[#2B3A55] bg-white text-[#211F1C] focus:outline-none focus:ring-1 focus:ring-[#2B3A55]"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleSaveField(key);
+                                if (e.key === "Escape") setEditingField(null);
+                              }}
+                            />
+                            <button
+                              onClick={() => handleSaveField(key)}
+                              disabled={isSaving}
+                              className="p-1 hover:bg-[#2B3A55]/10 text-[#2B3A55]"
+                              title="Save"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => setEditingField(null)}
+                              className="p-1 hover:bg-[#B33A2E]/10 text-[#B33A2E]"
+                              title="Cancel"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-xs font-sans text-[#211F1C] font-medium break-words">
+                            {String(value)}
+                          </span>
+                        )}
+                      </div>
+                      {!isComplex && !isEditing && (
+                        <button
+                          onClick={() => {
+                            setEditingField(key);
+                            setEditValue(String(value ?? ""));
+                          }}
+                          className="p-1 text-[#8A7B4F] hover:text-[#2B3A55] opacity-60 hover:opacity-100 transition-opacity"
+                          title="Edit Field"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
                       )}
                     </div>
                   </div>

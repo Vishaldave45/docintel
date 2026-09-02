@@ -35,10 +35,11 @@ export default function App() {
       const res = await fetch("/api/v1/documents");
       if (res.ok) {
         const data = await res.json();
-        setDocuments(data.documents || []);
+        const docList: DocumentItem[] = Array.isArray(data) ? data : (data.documents || []);
+        setDocuments(docList);
         // update selected document if open
         if (selectedDocument) {
-          const updated = data.documents?.find((d: DocumentItem) => d.id === selectedDocument.id);
+          const updated = docList.find((d: DocumentItem) => d.id === selectedDocument.id);
           if (updated) setSelectedDocument(updated);
         }
       }
@@ -217,6 +218,10 @@ export default function App() {
         onClose={() => setSelectedDocument(null)}
         onReExtract={handleReExtract}
         isReExtracting={isReExtracting}
+        onUpdateDocument={(updated) => {
+          setSelectedDocument(updated);
+          setDocuments((prev) => prev.map((d) => (d.id === updated.id ? updated : d)));
+        }}
       />
 
       {/* Ingestion & Upload Modal */}

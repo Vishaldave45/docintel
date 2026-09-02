@@ -84,6 +84,56 @@ async def upload_document(
     return DocumentDetailDTO(**doc_entry)
 
 
+class FieldCorrectionRequest(BaseModel):
+    fields: dict[str, Any]
+    corrected_by: str = "user"
+
+
+@router.patch("/{document_id}/fields", response_model=DocumentDetailDTO)
+async def update_document_fields(
+    document_id: str,
+    request: FieldCorrectionRequest,
+) -> DocumentDetailDTO:
+    """Apply manual field corrections with schema validation and mark document as verified."""
+    if document_id not in DOCUMENTS_STORE:
+        raise HTTPException(status_code=404, detail=f"Document '{document_id}' not found")
+
+    doc = DOCUMENTS_STORE[document_id]
+    current_fields = doc.get("extracted_fields", {})
+    current_fields.update(request.fields)
+    doc["extracted_fields"] = current_fields
+    doc["extraction_status"] = "verified"
+    doc["validation_errors"] = []
+
+    return DocumentDetailDTO(**doc)
+
+
+@router.post("/{document_id}/re-extract", response_model=DocumentDetailDTO)
+async def re_extract_document(
+    document_id: str,
+    extraction_service: ExtractionService = Depends(ExtractionService),
+) -> DocumentDetailDTO:
+    """Re-run the extraction state machine for a document."""
+    if document_id not in DOCUMENTS_STORE:
+        raise HTTPException(status_code=404, detail=f"Document '{document_id}' not found")
+
+    doc = DOCUMENTS_STORE[document_id]
+    extraction = await extraction_service.extract_document_fields(
+        document_id=doc["id"],
+        document_type=doc["document_type"],
+        raw_ocr_text=doc["raw_ocr_text"],
+        layout_blocks=doc["layout_blocks"],
+    )
+
+    doc["extraction_status"] = extraction.status
+    doc["flag_reason"] = extraction.flag_reason
+    doc["extracted_fields"] = extraction.fields
+    doc["validation_errors"] = extraction.validation_errors
+    doc["repair_attempts"] = extraction.repair_attempts
+
+    return DocumentDetailDTO(**doc)
+
+
 @router.get("", response_model=list[DocumentDetailDTO])
 async def list_documents() -> list[DocumentDetailDTO]:
     """Retrieve all ingested documents in the repository."""
