@@ -1,6 +1,7 @@
 """Unit & Integration Tests for Ingestion, OCR & Layout Domain."""
 
 import io
+from typing import Any
 
 import pytest
 
@@ -37,6 +38,23 @@ async def test_unsupported_file_type_raises() -> None:
         )
 
 
+def _add_helvetica_font(writer: Any, page: Any) -> None:
+    from pypdf.generic import DictionaryObject, NameObject
+
+    font = DictionaryObject()
+    font.update(
+        {
+            NameObject("/Type"): NameObject("/Font"),
+            NameObject("/Subtype"): NameObject("/Type1"),
+            NameObject("/BaseFont"): NameObject("/Helvetica"),
+        }
+    )
+    font_ref = writer._add_object(font)
+    resources = DictionaryObject()
+    resources[NameObject("/Font")] = DictionaryObject({NameObject("/F1"): font_ref})
+    page[NameObject("/Resources")] = resources
+
+
 @pytest.mark.asyncio
 async def test_process_text_pdf_extracts_content() -> None:
     """pypdf should extract text from a text-based PDF."""
@@ -45,6 +63,7 @@ async def test_process_text_pdf_extracts_content() -> None:
     # Build a minimal single-page text PDF in memory
     writer = pypdf.PdfWriter()
     page = writer.add_blank_page(width=612, height=792)
+    _add_helvetica_font(writer, page)
 
     # Add text annotation as a simple overlay (pypdf approach)
     from pypdf.generic import DecodedStreamObject, NameObject
@@ -82,6 +101,7 @@ async def test_process_multipage_pdf_returns_correct_page_count() -> None:
     writer = pypdf.PdfWriter()
     for i in range(3):
         page = writer.add_blank_page(width=612, height=792)
+        _add_helvetica_font(writer, page)
         stream = DecodedStreamObject()
         stream.set_data(
             f"BT /F1 12 Tf 72 720 Td (Annual Financial Report 2026 Section {i+1} Operating Revenue) Tj ET".encode()
