@@ -50,6 +50,9 @@ class ExtractionService:
         if "id" in doc_type or "passport" in doc_type or "license" in doc_type:
             from app.domains.extraction.schemas import IDExtraction
             return IDExtraction
+        if "receipt" in doc_type:
+            from app.domains.extraction.schemas import ReceiptExtraction
+            return ReceiptExtraction
         from app.domains.extraction.schemas import InvoiceExtraction
         return InvoiceExtraction
 

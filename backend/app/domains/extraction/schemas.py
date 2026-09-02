@@ -65,6 +65,23 @@ class IDExtraction(BaseModel):
     country_code: str
 
 
+class ReceiptLineItem(BaseModel):
+    description: str
+    quantity: float = 1.0
+    unit_price: float
+    total: float
+
+
+class ReceiptExtraction(BaseModel):
+    merchant_name: str
+    receipt_date: str
+    subtotal: float
+    tax_amount: float = Field(default=0.0)
+    total_amount: float
+    payment_method: str | None = None
+    line_items: list[ReceiptLineItem] = Field(default_factory=list)
+
+
 class ExtractionResultDTO(BaseModel):
     document_id: str
     target_schema: str

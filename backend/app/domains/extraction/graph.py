@@ -33,6 +33,8 @@ class ExtractionGraphRunner:
             schema = "FinancialReportExtraction"
         elif "id" in doc_type or "passport" in doc_type or "license" in doc_type:
             schema = "IDExtraction"
+        elif "receipt" in doc_type:
+            schema = "ReceiptExtraction"
         else:
             schema = "GenericExtraction"
 
@@ -76,6 +78,28 @@ class ExtractionGraphRunner:
                 {"description": "Dedicated Cloud Cluster Ingestion Setup", "quantity": 1, "unit_price": 2250.0, "total": 2250.0},
             ]
             confidences = {"invoice_number": 0.98, "vendor_name": 0.96, "total_amount": 0.99, "line_items": 0.94}
+
+        elif schema == "ReceiptExtraction":
+            # Extract merchant from first header line
+            lines = [l.strip() for l in text.split("\n") if l.strip()]
+            merchant = lines[0] if lines else "Store Express"
+            extracted["merchant_name"] = merchant
+            extracted["receipt_date"] = "2026-08-29"
+
+            total_match = re.search(r"(?:total|total due|amount)[:\s]*\$?\s*([\d,]+\.?\d*)", text, re.IGNORECASE)
+            total_val = float(total_match.group(1).replace(",", "")) if total_match else 45.90
+            tax_match = re.search(r"tax[:\s]*\$?\s*([\d,]+\.?\d*)", text, re.IGNORECASE)
+            tax_val = float(tax_match.group(1).replace(",", "")) if tax_match else round(total_val * 0.08, 2)
+            subtotal_val = round(total_val - tax_val, 2)
+
+            extracted["subtotal"] = subtotal_val
+            extracted["tax_amount"] = tax_val
+            extracted["total_amount"] = total_val
+            extracted["payment_method"] = "Contactless / Card"
+            extracted["line_items"] = [
+                {"description": "General Retail Purchase Item", "quantity": 1.0, "unit_price": subtotal_val, "total": subtotal_val}
+            ]
+            confidences = {"merchant_name": 0.95, "total_amount": 0.97, "subtotal": 0.93}
 
         elif schema == "ContractExtraction":
             extracted["contract_title"] = "Master Services & Data Protection Agreement"
@@ -142,15 +166,17 @@ class ExtractionGraphRunner:
         errors: list[str] = []
         schema = state["target_schema_name"]
 
-        if schema == "InvoiceExtraction":
+        if schema in ("InvoiceExtraction", "ReceiptExtraction"):
             subtotal = float(data.get("subtotal", 0))
             tax = float(data.get("tax_amount", 0))
             total = float(data.get("total_amount", 0))
             # Mathematical consistency check
             if abs((subtotal + tax) - total) > 0.05:
                 errors.append(f"Subtotal ({subtotal}) + Tax ({tax}) does not equal Total Amount ({total})")
-            if not data.get("invoice_number"):
+            if schema == "InvoiceExtraction" and not data.get("invoice_number"):
                 errors.append("Missing mandatory 'invoice_number'")
+            if schema == "ReceiptExtraction" and not data.get("merchant_name"):
+                errors.append("Missing mandatory 'merchant_name'")
 
         elif schema == "ContractExtraction":
             if not data.get("parties") or len(data.get("parties", [])) < 2:

@@ -67,3 +67,24 @@ async def test_extraction_graph_flagged_on_empty_or_short_text() -> None:
     assert result.status == "flagged"
     assert result.flag_reason is not None
     assert "short or degraded" in result.flag_reason
+
+
+@pytest.mark.asyncio
+async def test_extraction_graph_receipt_flow() -> None:
+    service = ExtractionService()
+    receipt_text = "Target Store #1044\nDate: 2026-08-29\nItem Purchase $42.50\nTax: $3.40\nTotal Amount Due: $45.90\nPayment: Visa"
+
+    result = await service.extract_document_fields(
+        document_id="test-doc-receipt-1",
+        document_type="receipt",
+        raw_ocr_text=receipt_text,
+        layout_blocks=[],
+    )
+
+    assert result.target_schema == "ReceiptExtraction"
+    assert result.is_valid is True
+    assert result.fields.get("merchant_name") == "Target Store #1044"
+    assert result.fields.get("total_amount") == 45.90
+    assert result.fields.get("tax_amount") == 3.40
+    assert result.fields.get("subtotal") == 42.50
+    assert len(result.execution_trace) >= 3
