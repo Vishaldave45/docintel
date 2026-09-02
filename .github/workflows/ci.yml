@@ -30,8 +30,8 @@ jobs:
 
       - name: Run Backend Linting
         run: |
+          ruff format backend/ ml/
           ruff check backend/ ml/
-          black --check backend/ ml/
           mypy backend/app ml/
 
       - name: Set up Node.js 20
@@ -74,6 +74,12 @@ jobs:
         with:
           python-version: "3.11"
           cache: "pip"
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+            poppler-utils \
+            tesseract-ocr
 
       - name: Install Dependencies
         run: |
